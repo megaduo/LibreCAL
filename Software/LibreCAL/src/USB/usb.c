@@ -70,8 +70,8 @@ static void handleIncoming(char *buf, uint16_t *recCnt, uint8_t interface) {
 	}
 	*recCnt += cnt;
 	char *lineEnd;
-	while(lineEnd = strnstr(buf, "\r\n", *recCnt)) {
-		uint16_t bytes = lineEnd - buf + 2;
+	while(lineEnd = memchr(buf, '\n', *recCnt)) {
+		uint16_t bytes = lineEnd - buf + 1;
 		if(callback) {
 			callback(buf, bytes, interface);
 		}
@@ -94,7 +94,7 @@ void tud_cdc_rx_cb(uint8_t itf)
 	handleIncoming(buf, &recCnt, USB_INTERFACE_CDC);
 }
 
-void tud_vendor_rx_cb(uint8_t itf)
+void tud_vendor_rx_cb(uint8_t itf, uint8_t const* buffer, uint16_t bufsize)
 {
 	static uint8_t buf[USB_REC_BUFFER_SIZE];
 	static uint16_t recCnt = 0;
